@@ -1,0 +1,12 @@
+{
+    "JWT_PRIVATE_KEY": "unsecureKey",
+    "MYSQL": {
+      "host": "localhost",
+      "user": "root",
+      "password": "root",
+      "database": "inzaar"
+    },
+    "PORT": "4000",
+    "DEBUG": false,
+    "CLUSTER_MODE": true
+  }
