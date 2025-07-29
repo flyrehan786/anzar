@@ -1,0 +1,132 @@
+<div class="eppr-logs-container">
+  <div class="card">
+    <h2>EPPR Requests Log</h2>
+    
+    <p-treeTable 
+      [value]="treeData" 
+      [columns]="cols"
+      selectionMode="single"
+      [scrollable]="true"
+      scrollHeight="600px"
+      styleClass="p-treetable-sm">
+      
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" [style.width]="getColumnWidth(col.field)">
+            {{col.header}}
+          </th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+        <tr [ttRow]="rowNode">
+          <td *ngFor="let col of columns; let i = index">
+            
+            <!-- Key column with expand/collapse toggle -->
+            <div *ngIf="col.field === 'key'" class="key-cell">
+              <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+              <span [ngClass]="getRowTypeClass(rowData.type)">
+                <i [class]="getRowIcon(rowData.type)"></i>
+                {{rowData[col.field]}}
+              </span>
+            </div>
+            
+            <!-- Value column with special formatting -->
+            <div *ngIf="col.field === 'value'" class="value-cell">
+              <div *ngIf="rowData.type === 'JSON'" class="json-container">
+                <button 
+                  pButton 
+                  type="button" 
+                  icon="pi pi-eye" 
+                  class="p-button-text p-button-sm"
+                  (click)="showJsonDialog(rowData.value)"
+                  pTooltip="View JSON">
+                </button>
+                <span class="json-preview">{{getJsonPreview(rowData.value)}}</span>
+              </div>
+              <div *ngIf="rowData.type !== 'JSON'" [innerHTML]="formatValue(rowData.value)"></div>
+            </div>
+            
+            <!-- Type column -->
+            <div *ngIf="col.field === 'type'" class="type-cell">
+              <span class="type-badge" [ngClass]="getTypeBadgeClass(rowData.type)">
+                {{rowData.type}}
+              </span>
+            </div>
+            
+            <!-- Status column -->
+            <div *ngIf="col.field === 'status'" class="status-cell">
+              <span 
+                *ngIf="rowData.status" 
+                class="status-badge" 
+                [ngClass]="getStatusClass(rowData.status)">
+                <i [class]="getStatusIcon(rowData.status)"></i>
+                {{rowData.status}}
+              </span>
+            </div>
+            
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="cols.length">
+            <div class="empty-message">
+              <i class="pi pi-info-circle"></i>
+              <p>No EPPR logs found</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      
+    </p-treeTable>
+  </div>
+</div>
+
+<!-- JSON Dialog -->
+<p-dialog 
+  [(visible)]="showJsonModal" 
+  [modal]="true" 
+  [closable]="true"
+  [resizable]="true"
+  [maximizable]="true"
+  header="JSON Data"
+  styleClass="json-dialog"
+  [style]="{width: '80vw', height: '70vh'}">
+  
+  <div class="json-dialog-content">
+    <div class="json-toolbar">
+      <button 
+        pButton 
+        type="button" 
+        icon="pi pi-copy" 
+        label="Copy" 
+        class="p-button-outlined p-button-sm"
+        (click)="copyToClipboard(selectedJson)"
+        pTooltip="Copy JSON to clipboard">
+      </button>
+      <button 
+        pButton 
+        type="button" 
+        icon="pi pi-download" 
+        label="Download" 
+        class="p-button-outlined p-button-sm"
+        (click)="downloadJson(selectedJson)"
+        pTooltip="Download JSON file">
+      </button>
+    </div>
+    <pre class="json-content">{{selectedJson}}</pre>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button" 
+      icon="pi pi-times" 
+      label="Close" 
+      class="p-button-text"
+      (click)="showJsonModal = false">
+    </button>
+  </ng-template>
+</p-dialog>
